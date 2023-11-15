@@ -1,0 +1,15 @@
+{
+  "Drake": {
+    "size": 3,
+    "color": "#000000",
+    "location1": {
+      "x": 0.64,
+      "y": 0.25
+    },
+    "location2": {
+      "x": 0.64,
+      "y": 0.75
+    },
+    "link": "https://i.imgur.com/frOS5Vw.jpeg"
+  }
+}
