@@ -1,14 +1,10 @@
 {
-  "name": "Testbot2.0",
+  "name": "doddy",
   "version": "1.0.0",
   "dependencies": {
     "@napi-rs/canvas": "^0.1.41",
     "axios": "^1.4.0",
-    "custom-env": "^2.0.1",
     "discord.js": "^14.8.0",
-    "dotenv": "^16.0.3",
-    "node-fetch": "^3.3.1",
-    "openai": "^3.2.1",
-    "undici": "^5.22.0"
+    "events": "^3.3.0"
   }
 }
