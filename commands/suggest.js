@@ -34,5 +34,5 @@ module.exports = {
         })
     },
 
-    info: "Doe een suggestie voor de server"
+    info: "Dien een suggestie in om de server beter te maken"
 }
