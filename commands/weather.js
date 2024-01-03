@@ -20,31 +20,40 @@ module.exports = {
             let codes = fc.weather_code;
             let min = fc.temperature_2m_min;
             let max = fc.temperature_2m_max;
+            let country = fc.country;
 
             let fields = [];
             
             for (i in days){
+                let date = new Date(days[i]);
+                let dateOptions = { year: "numeric", month: "short", day: "numeric" };
+
                 let code = codes[i];
                 let weathericon = code;
+                if ([2].includes(code)) {
+                    weathericon = "☀️";
+                }
                 if ([3].includes(code)) {
                     weathericon = "☁️";
                 }
-                if ([80,81].includes(code)) {
+                if ([50,51,52,53,54,55,56,57,58,59,60,61,62,63,65,65,66,67,68,69,80,81,82].includes(code)) {
                     weathericon = "🌧️";
                 }
-                if ([70,71,77].includes(code)) {
+                if ([70,71,72,73,74,75,76,77,78,79].includes(code)) {
                     weathericon = "❄️";
                 }
+
                 let field = {
-                    name: days[i],
-                    value: `${weathericon}\nMIN: ${min[i]}°C\tMAX: ${max[i]}°C`
+                    name: date.toLocaleDateString("nl", dateOptions),
+                    value: `${weathericon}\n🔽 ${min[i]}°C\t🔼 ${max[i]}°C`,
+                    inline: true
                 }
                 fields[i] = field;
             }
 
             interaction.editReply({
                 embeds: [{
-                    title: `WEATHER IN ${location}`,
+                    title: `Weer in ${location} (${country})`,
                     fields: fields,
                     color: 0xB9683C
                 }]
@@ -69,7 +78,10 @@ async function getForecast(location){
     }
     let latitude = loc.results[0].latitude;
     let longitude = loc.results[0].longitude;
+    let country = loc.results[0].country_code;
     let resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min`);
     let fc = await resp.json();
-    return fc.daily;
+    let retFc = fc.daily;
+    retFc["country"] = country;
+    return retFc;
 }
