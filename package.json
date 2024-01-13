@@ -5,6 +5,7 @@
     "@napi-rs/canvas": "^0.1.41",
     "axios": "^1.4.0",
     "discord.js": "^14.8.0",
-    "events": "^3.3.0"
+    "events": "^3.3.0",
+    "js-priority-queue": "^0.1.5"
   }
 }

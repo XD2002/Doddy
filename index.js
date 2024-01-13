@@ -11,6 +11,7 @@ const { Client, Collection, Events, GatewayIntentBits, ActivityType, AttachmentB
 const { token } = require('./config.json');
 const Canvas = require("@napi-rs/canvas");
 const memeJson = require("./resources/meme.json")
+const PriorityQueue = require("js-priority-queue")
 
 const client = new Client({ intents: [
         GatewayIntentBits.Guilds,
@@ -23,6 +24,8 @@ client.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+const scheduledMessages = PriorityQueue({comparator: function(a,b) { return a.time-b.time; }});
 
 for (const file of commandFiles) {
     const filePath = path.join(commandsPath,file);
@@ -121,5 +124,7 @@ client.on(Events.MessageCreate, async interaction => {
         }
     }
 })
+
+module.exports = {scheduledMessages};
 
 client.login(token);
