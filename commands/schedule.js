@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js')
 const fs = require("fs")
-const { scheduledMessages } = require('../index.js')
+const { scheduledMessages } = require('../index.js');
+const { ScheduledMessage } = require('../objects/ScheduledMessage.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,7 +9,7 @@ module.exports = {
         .setDescription("Registreer een bericht dat Doddy op een meegegeven moment zal versturen")
         .addStringOption(option =>
             option.setName("tijd")
-                .setDescription("Op welk moment moet Doddy dit bericht sturen? (formateer de datum als YYYY-MM-DD HH:mm, 11 juli 2024 om 11h30 is dan '2024-07-11 11:30')")
+                .setDescription("Op welk moment moet Doddy dit bericht sturen? (formateer de datum als YYYY-MM-DD HH:mm)")
                 .setRequired(true)
         )
         .addChannelOption(option =>
@@ -23,15 +24,40 @@ module.exports = {
         .addStringOption(option =>
             option.setName("titel")
                 .setDescription("De titel van het bericht dat Doddy zal verzenden")
+        ) 
+        .addAttachmentOption(option =>
+            option.setName("foto")
+                .setDescription("Foto die Doddy bij het bericht zal voegen.")
         )
         .addStringOption(option =>
-            option.setName("foto")
-                .setDescription("Foto die Doddy bij het bericht zal voegen, gebruik een link naar de afbeelding, als attachment is voor later")
+            option.setName("reactions")
+                .setDescription("Reacties die Doddy op het bericht zal plaatsen")
         ),
 
     async execute(interaction) {
         await interaction.deferReply();
+        
+        let time = new Date(interaction.options.getString("tijd").replaceAll(' ', 'T'));
+        let channel = interaction.options.getChannel("kanaal");
+        let content = interaction.options.getString("inhoud");
+        let title = interaction.options.getString("titel");
+        let photo = interaction.options.getAttachment("foto");
+        let reactions = interaction.options.getString("reactions");
+
+        let url;
+
+        if (content !== null) content = content.replaceAll("\\n", "\n");
+
+        if (photo == null) {
+            url = "";
+        } else {
+            url = photo.url;
+        }
+
+        let message = new ScheduledMessage(0,time,interaction.user,channel,content,title,url,reactions);
+
+        console.log(message);
     },
 
-    info: "Registreer je schaakaccount"
+    info: "Schedule a message"
 }

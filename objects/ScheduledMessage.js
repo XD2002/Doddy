@@ -10,3 +10,5 @@ class ScheduledMessage {
         this.reactions = reactions;
     }
 }
+
+module.exports = { ScheduledMessage }
