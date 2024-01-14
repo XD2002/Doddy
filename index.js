@@ -11,7 +11,8 @@ const { Client, Collection, Events, GatewayIntentBits, ActivityType, AttachmentB
 const { token } = require('./config.json');
 const Canvas = require("@napi-rs/canvas");
 const memeJson = require("./resources/meme.json")
-const PriorityQueue = require("js-priority-queue")
+const PriorityQueue = require("js-priority-queue");
+const { constrainedMemory } = require('process');
 
 const client = new Client({ intents: [
         GatewayIntentBits.Guilds,
@@ -26,7 +27,6 @@ const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 const scheduledMessages = new PriorityQueue({comparator: function(a,b) { return a.time-b.time; }});
-console.log(scheduledMessages);
 
 for (const file of commandFiles) {
     const filePath = path.join(commandsPath,file);
@@ -125,6 +125,47 @@ client.on(Events.MessageCreate, async interaction => {
         }
     }
 })
+
+
+function handleScheduledMessages(){
+    let now = new Date();
+    console.log(now);
+    if (scheduledMessages.length>0){
+        console.log(scheduledMessages.peek().time);
+    } else {
+        console.log("empty");
+    }
+    if (scheduledMessages.length>0 && scheduledMessages.peek().time<now){
+        let message = scheduledMessages.dequeue();
+        let channel = message.channel;
+        let content = message.content;
+        let titel = message.titel;
+        let foto = message.foto;
+        let reactions = message.reactions;
+
+        channel.send({
+            embeds: [{
+                title: titel,
+                description: content,
+                image: {
+                    url: foto
+                },
+                color: 0xb9673c
+            }]
+        }).then(
+            function (message) {
+                if (reactions !== ""){
+                    let emotes = reactions.split(' ');
+                    for (let emote of emotes){
+                        message.react(emote);
+                    }
+                }
+            }
+        )
+    }
+}
+
+setInterval(handleScheduledMessages, 10000);
 
 module.exports = { scheduledMessages };
 

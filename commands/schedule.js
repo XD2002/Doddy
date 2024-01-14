@@ -43,7 +43,7 @@ module.exports = {
         let content = interaction.options.getString("inhoud");
         let title = interaction.options.getString("titel");
         let photo = interaction.options.getAttachment("foto");
-        let reactions = interaction.options.getString("reactions");
+        let reactions = interaction.options.getString("reactions") ?? "";
 
         let url;
 
@@ -56,8 +56,6 @@ module.exports = {
         }
 
         let message = new ScheduledMessage(Date.now(),time,interaction.user,channel,content,title,url,reactions);
-
-        console.log(scheduledMessages);
 
         fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
             if(err){
@@ -74,8 +72,6 @@ module.exports = {
                         } else {
                             scheduledMessages.queue(message);
     
-                            console.log(scheduledMessages.peek());
-
                             interaction.editReply("Success");
                         }
                     })
