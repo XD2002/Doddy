@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js')
 const fs = require("fs")
-const { scheduledMessages } = require('../index.js');
 const { ScheduledMessage } = require('../objects/ScheduledMessage.js');
 
 module.exports = {
@@ -37,6 +36,8 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply();
         
+        const { scheduledMessages } = require('../index.js');
+
         let time = new Date(interaction.options.getString("tijd").replaceAll(' ', 'T'));
         let channel = interaction.options.getChannel("kanaal");
         let content = interaction.options.getString("inhoud");
@@ -54,9 +55,36 @@ module.exports = {
             url = photo.url;
         }
 
-        let message = new ScheduledMessage(0,time,interaction.user,channel,content,title,url,reactions);
+        let message = new ScheduledMessage(Date.now(),time,interaction.user,channel,content,title,url,reactions);
 
-        console.log(message);
+        console.log(scheduledMessages);
+
+        fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
+            if(err){
+                console.error(err);
+                interaction.editReply("Oops, er liep iets verkeerd.");
+            } else {
+                try {
+                    let schedule = JSON.parse(data);
+                    schedule[message.key] = message;
+                    fs.writeFile("./resources/schedule.json", JSON.stringify(schedule), err => {
+                        if(err){
+                            console.error(err);
+                            interaction.editReply("Oops, er liep iets verkeerd");
+                        } else {
+                            scheduledMessages.queue(message);
+    
+                            console.log(scheduledMessages.peek());
+
+                            interaction.editReply("Success");
+                        }
+                    })
+                } catch (e) {
+                    console.error(e);
+                    interaction.editReply("Oops, er liep iets verkeerd.");
+                }
+            }
+        })
     },
 
     info: "Schedule a message"

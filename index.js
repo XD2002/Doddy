@@ -25,7 +25,8 @@ client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-const scheduledMessages = PriorityQueue({comparator: function(a,b) { return a.time-b.time; }});
+const scheduledMessages = new PriorityQueue({comparator: function(a,b) { return a.time-b.time; }});
+console.log(scheduledMessages);
 
 for (const file of commandFiles) {
     const filePath = path.join(commandsPath,file);
@@ -125,6 +126,6 @@ client.on(Events.MessageCreate, async interaction => {
     }
 })
 
-module.exports = {scheduledMessages};
+module.exports = { scheduledMessages };
 
 client.login(token);
