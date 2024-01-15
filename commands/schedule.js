@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js')
+const { SlashCommandBuilder, Guild, ChannelType } = require('discord.js')
 const fs = require("fs")
 const { ScheduledMessage } = require('../objects/ScheduledMessage.js');
 
@@ -14,6 +14,7 @@ module.exports = {
         .addChannelOption(option =>
             option.setName("kanaal")
                 .setDescription("In welk kanaal moet Doddy dit bericht sturen?")
+                .addChannelTypes(ChannelType.GuildText)
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -40,8 +41,8 @@ module.exports = {
 
         let time = new Date(interaction.options.getString("tijd").replaceAll(' ', 'T'));
         let channel = interaction.options.getChannel("kanaal");
-        let content = interaction.options.getString("inhoud");
-        let title = interaction.options.getString("titel");
+        let content = interaction.options.getString("inhoud") ?? "";
+        let title = interaction.options.getString("titel") ?? "";
         let photo = interaction.options.getAttachment("foto");
         let reactions = interaction.options.getString("reactions") ?? "";
 
@@ -55,8 +56,18 @@ module.exports = {
             url = photo.url;
         }
 
-        let message = new ScheduledMessage(Date.now(),time,interaction.user,channel,content,title,url,reactions);
+        if (time < new Date()) {
+            interaction.editReply("Het meegegeven tijdstip ligt in het verleden, Doddy kan veel, maar tijdreizen helaas nog niet.");
+            return
+        }
 
+        if (title === "" && content === "" && url === ""){
+            interaction.editReply("Titel, inhoud en foto mogen niet tegelijk leeg zijn.");
+            return
+        }
+
+        let message = new ScheduledMessage(Date.now(),time,interaction.user.id,channel.id,content,title,url,reactions);
+        console.log(message);
         fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
             if(err){
                 console.error(err);
@@ -72,7 +83,7 @@ module.exports = {
                         } else {
                             scheduledMessages.queue(message);
     
-                            interaction.editReply("Success");
+                            interaction.editReply("Doddy noteerde het in zijn boekje");
                         }
                     })
                 } catch (e) {
