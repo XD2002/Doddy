@@ -4,7 +4,7 @@ const { ScheduledMessage } = require('../objects/ScheduledMessage.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("schedule")
+        .setName("schedule-add")
         .setDescription("Registreer een bericht dat Doddy op een meegegeven moment zal versturen")
         .addStringOption(option =>
             option.setName("tijd")
@@ -31,7 +31,7 @@ module.exports = {
         )
         .addStringOption(option =>
             option.setName("reactions")
-                .setDescription("Reacties die Doddy op het bericht zal plaatsen")
+                .setDescription("Reacties die Doddy op het bericht zal plaatsen, splitsen met een spatie.")
         ),
 
     async execute(interaction) {
@@ -66,7 +66,9 @@ module.exports = {
             return
         }
 
-        let message = new ScheduledMessage(Date.now(),time,interaction.user.id,channel.id,content,title,url,reactions);
+        let key = Date.now();
+
+        let message = new ScheduledMessage(key,time,interaction.user.id,channel.id,content,title,url,reactions);
         console.log(message);
         fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
             if(err){
@@ -82,8 +84,27 @@ module.exports = {
                             interaction.editReply("Oops, er liep iets verkeerd");
                         } else {
                             scheduledMessages.queue(message);
-    
-                            interaction.editReply("Doddy noteerde het in zijn boekje");
+
+                            interaction.editReply({
+                                content: `Doddy noteerde het in zijn boekje.\nin <#${channel.id}> om ${time} met key: ${key}`,
+                                embeds: [{
+                                    title: title,
+                                    description: content,
+                                    image: {
+                                        url: url
+                                    },
+                                    color: 0xb9673c
+                                }]
+                            }).then(
+                                function (message) {
+                                    if (reactions !== ""){
+                                        let emotes = reactions.split(' ');
+                                        for (let emote of emotes){
+                                            message.react(emote);
+                                        }
+                                    }
+                                }
+                            )
                         }
                     })
                 } catch (e) {

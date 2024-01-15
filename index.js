@@ -141,12 +141,6 @@ client.on(Events.MessageCreate, async interaction => {
 
 function handleScheduledMessages(){
     let now = new Date();
-    console.log(typeof now);
-    if (scheduledMessages.length>0){
-        console.log(scheduledMessages.peek());
-    } else {
-        console.log("empty");
-    }
     if (scheduledMessages.length>0 && scheduledMessages.peek().time<now){
         let message = scheduledMessages.dequeue();
         let key = message.key;
