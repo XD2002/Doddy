@@ -69,7 +69,7 @@ module.exports = {
         let key = Date.now();
 
         let message = new ScheduledMessage(key,time,interaction.user.id,channel.id,content,title,url,reactions);
-        console.log(message);
+        
         fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
             if(err){
                 console.error(err);

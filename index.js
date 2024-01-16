@@ -6,7 +6,6 @@ const Canvas = require("@napi-rs/canvas");
 const memeJson = require("./resources/meme.json")
 const PriorityQueue = require("js-priority-queue");
 const { ScheduledMessage } = require('./objects/ScheduledMessage');
-const { channel } = require('diagnostics_channel');
 
 const client = new Client({ intents: [
         GatewayIntentBits.Guilds,
@@ -20,7 +19,7 @@ client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-const scheduledMessages = new PriorityQueue({comparator: function(a,b) { return a.time-b.time; }});
+let scheduledMessages = new PriorityQueue({comparator: function(a,b) { return a.time-b.time; }});
 
 fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
     if(err){
@@ -192,6 +191,10 @@ function handleScheduledMessages(){
 
 setInterval(handleScheduledMessages, 10000);
 
-module.exports = { scheduledMessages };
+function updateScheduledMessages(newQueue) {
+  scheduledMessages = newQueue;
+}
+
+module.exports = { scheduledMessages, updateScheduledMessages };
 
 client.login(token);
