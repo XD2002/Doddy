@@ -58,5 +58,5 @@ module.exports = {
         })
     },
 
-    info: "remove a message"
+    info: "remove a scheduled message"
 }
