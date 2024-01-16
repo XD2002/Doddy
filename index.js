@@ -1,16 +1,11 @@
-require('http')
-    .createServer(async (req, res) => {
-        res.statusCode = 200;
-        res.write('ok');
-        res.end();
-    })
-    .listen(3000, () => console.log('Now listening on port 3000'));
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, AttachmentBuilder} = require('discord.js');
 const { token } = require('./config.json');
 const Canvas = require("@napi-rs/canvas");
 const memeJson = require("./resources/meme.json")
+const PriorityQueue = require("js-priority-queue");
+const { ScheduledMessage } = require('./objects/ScheduledMessage');
 
 const client = new Client({ intents: [
         GatewayIntentBits.Guilds,
@@ -23,6 +18,26 @@ client.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+let scheduledMessages = new PriorityQueue({comparator: function(a,b) { return a.time-b.time; }});
+
+fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
+    if(err){
+        console.error(err);
+    } else {
+        try {
+            let schedule = JSON.parse(data);
+            for (let key in schedule) {
+                let messageJson = schedule[key];
+                let message = new ScheduledMessage(messageJson.key,new Date(messageJson.time),messageJson.user,messageJson.channel,messageJson.content,messageJson.titel,messageJson.foto,messageJson.reactions);
+                
+                scheduledMessages.queue(message);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+})
 
 for (const file of commandFiles) {
     const filePath = path.join(commandsPath,file);
@@ -121,5 +136,65 @@ client.on(Events.MessageCreate, async interaction => {
         }
     }
 })
+
+
+function handleScheduledMessages(){
+    let now = new Date();
+    if (scheduledMessages.length>0 && scheduledMessages.peek().time<now){
+        let message = scheduledMessages.dequeue();
+        let key = message.key;
+        let channel = message.channel;
+        let content = message.content;
+        let titel = message.titel;
+        let foto = message.foto;
+        let reactions = message.reactions;
+
+        fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
+            if(err){
+                console.error(err);
+            } else {
+                try {
+                    let schedule = JSON.parse(data);
+                    delete schedule[key];
+                    fs.writeFile("./resources/schedule.json", JSON.stringify(schedule), err => {
+                        if (err) {
+                            console.error(err);
+                        }
+                    })
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        })
+
+        client.channels.cache.get(channel).send({
+            embeds: [{
+                title: titel,
+                description: content,
+                image: {
+                    url: foto
+                },
+                color: 0xb9673c
+            }]
+        }).then(
+            function (message) {
+                if (reactions !== ""){
+                    let emotes = reactions.split(' ');
+                    for (let emote of emotes){
+                        message.react(emote);
+                    }
+                }
+            }
+        )
+    }
+}
+
+setInterval(handleScheduledMessages, 10000);
+
+function updateScheduledMessages(newQueue) {
+  scheduledMessages = newQueue;
+}
+
+module.exports = { scheduledMessages, updateScheduledMessages };
 
 client.login(token);
