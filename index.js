@@ -29,7 +29,7 @@ fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
             let schedule = JSON.parse(data);
             for (let key in schedule) {
                 let messageJson = schedule[key];
-                let message = new ScheduledMessage(messageJson.key,new Date(messageJson.time),messageJson.user,messageJson.channel,messageJson.content,messageJson.titel,messageJson.foto,messageJson.reactions);
+                let message = new ScheduledMessage(messageJson.key,new Date(messageJson.time),messageJson.user,messageJson.channel,messageJson.content,messageJson.titel,messageJson.foto,messageJson.reactions,Boolean(messageJson.thread));
                 
                 scheduledMessages.queue(message);
             }
@@ -138,7 +138,7 @@ client.on(Events.MessageCreate, async interaction => {
 })
 
 
-function handleScheduledMessages(){
+async function handleScheduledMessages(){
     let now = new Date();
     if (scheduledMessages.length>0 && scheduledMessages.peek().time<now){
         let message = scheduledMessages.dequeue();
@@ -148,6 +148,7 @@ function handleScheduledMessages(){
         let titel = message.titel;
         let foto = message.foto;
         let reactions = message.reactions;
+        let thread = message.thread;
 
         fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
             if(err){
@@ -167,7 +168,7 @@ function handleScheduledMessages(){
             }
         })
 
-        client.channels.cache.get(channel).send({
+        await client.channels.cache.get(channel).send({
             embeds: [{
                 title: titel,
                 description: content,
@@ -183,6 +184,12 @@ function handleScheduledMessages(){
                     for (let emote of emotes){
                         message.react(emote);
                     }
+                }
+                if (thread) {
+                    message.startThread({
+                        name: titel ?? "thread",
+                        autoArchiveDuration: 60
+                    })
                 }
             }
         )

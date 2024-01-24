@@ -1,5 +1,5 @@
 class ScheduledMessage {
-    constructor(key, time, user, channel, content, titel, foto, reactions){
+    constructor(key, time, user, channel, content, titel, foto, reactions, thread){
         this.key = key;
         this.time = time;
         this.user = user;
@@ -8,6 +8,7 @@ class ScheduledMessage {
         this.titel = titel;
         this.foto = foto;
         this.reactions = reactions;
+        this.thread = thread;
     }
 }
 

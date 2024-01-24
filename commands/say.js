@@ -12,12 +12,16 @@ module.exports = {
                 .setDescription("De titel van het bericht dat Doddy zal zeggen"))
         .addAttachmentOption(option =>
             option.setName("foto")
-                .setDescription("Een foto die Doddy bij het bericht voegt")),
+                .setDescription("Een foto die Doddy bij het bericht voegt"))
+        .addBooleanOption(option =>
+            option.setName("thread")
+                .setDescription("Moet Doddy een thread toevoegen bij dit bericht?")),
 
     async execute(interaction) {
-        let text = interaction.options.getString("tekst")
-        let titel = interaction.options.getString("titel")
-        let img = interaction.options.getAttachment("foto")
+        let text = interaction.options.getString("tekst");
+        let titel = interaction.options.getString("titel");
+        let img = interaction.options.getAttachment("foto");
+        let thread = interaction.options.getBoolean("thread") ?? false;
 
         let url
 
@@ -29,7 +33,7 @@ module.exports = {
             url = img.url
         }
 
-        await interaction.channel.send({
+        let response = await interaction.channel.send({
             embeds: [{
                 title: titel,
                 description: text,
@@ -39,6 +43,13 @@ module.exports = {
                 color: 0xb9673c
             }]
         })
+
+        if (thread) {
+            await response.startThread({
+                name: titel ?? "thread",
+                auotArchiveDuration: 60
+            })
+        }
 
         await interaction.reply("Successfully spoken")
         await interaction.deleteReply()
