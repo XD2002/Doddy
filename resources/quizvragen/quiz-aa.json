@@ -142,7 +142,7 @@
     {
         "question": "Van welk land zie je hier de vlag?",
         "image": "https://www.jetpunk.com/img/user-photo-library/07/0720d15b5b-235.png",
-        "answers": ["Zuid-Afrika"]
+        "answers": ["Zuid-Afrika", "Zuid Afrika"]
     },
     {
         "question": "Van welk land zie je hier de vlag?",
@@ -492,6 +492,6 @@
     {
         "question": "Welk land zie je hier?",
         "image": "https://www.jetpunk.com/img/user-photo-library/f3/f34128e8c3-235.png",
-        "answers": ["Zuid-Afrika"]
+        "answers": ["Zuid-Afrika", "Zuid Afrika"]
     }
 ]

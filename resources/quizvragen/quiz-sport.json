@@ -28,11 +28,6 @@
         "answers": ["wit"]
     }, 
     {
-        "question": "Welke kleur trui is in de Ronde van Frankrijk geen trui?",
-        "image": "https://cdn.discordapp.com/attachments/691753028767973476/798539648187498556/InShot_20210112_141012662.jpg",
-        "answers": ["wit-groene trui", "wit groene trui", "witgroenetrui", "witgroene trui", "wit-groenetrui"]
-    }, 
-    {
         "question": "Waar gaan de olympische spelen in 2021 door?",
         "answers": ["Tokio", "Tokyo"]
     }, 
