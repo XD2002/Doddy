@@ -57,7 +57,7 @@
     },
     {
         "question": "In welke stad werd John Lennon vermoord?",
-        "answers": ["New York", "in New York"]
+        "answers": ["New York", "in New York", "NY", "NYC"]
     },
     {
         "question": "Wie verloor de slag bij Waterloo?",
@@ -193,7 +193,7 @@
     },
     {
         "question": "Uit welk testament komt de bijbelparabel over het verloren schaap",
-        "answers": ["Het Nieuwe Testament", "Nieuwe Testament"]
+        "answers": ["Het Nieuwe Testament", "Nieuwe Testament", "NT", "Nieuw Testament"]
     },
     {
         "question": "In welk land zijn de meeste smaken schepijs uitgevonden?",

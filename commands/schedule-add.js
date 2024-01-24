@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, Guild, ChannelType } = require('discord.js')
+const { SlashCommandBuilder, ChannelType } = require('discord.js')
 const fs = require("fs")
 const { ScheduledMessage } = require('../objects/ScheduledMessage.js');
 
@@ -32,6 +32,10 @@ module.exports = {
         .addStringOption(option =>
             option.setName("reactions")
                 .setDescription("Reacties die Doddy op het bericht zal plaatsen, splitsen met een spatie.")
+        )
+        .addBooleanOption(option =>
+            option.setName("thread")
+                .setDescription("Moet Doddy een thread bij dit bericht bijvoegen?")
         ),
 
     async execute(interaction) {
@@ -45,6 +49,7 @@ module.exports = {
         let title = interaction.options.getString("titel") ?? "";
         let photo = interaction.options.getAttachment("foto");
         let reactions = interaction.options.getString("reactions") ?? "";
+        let thread = interaction.options.getBoolean("thread") ?? false;
 
         let url;
 
@@ -68,7 +73,7 @@ module.exports = {
 
         let key = Date.now();
 
-        let message = new ScheduledMessage(key,time,interaction.user.id,channel.id,content,title,url,reactions);
+        let message = new ScheduledMessage(key,time,interaction.user.id,channel.id,content,title,url,reactions,thread);
         
         fs.readFile("./resources/schedule.json", "utf8", (err, data) => {
             if(err){
@@ -86,7 +91,7 @@ module.exports = {
                             scheduledMessages.queue(message);
 
                             interaction.editReply({
-                                content: `Doddy noteerde het in zijn boekje.\nin <#${channel.id}> om ${time} met key: ${key}`,
+                                content: `Doddy noteerde het in zijn boekje.\nin <#${channel.id}>\nom ${time}\nkey: ${key}\nthread:${thread}`,
                                 embeds: [{
                                     title: title,
                                     description: content,
